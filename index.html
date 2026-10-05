@@ -3,286 +3,494 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Footstep Power Generator - Interactive Workbench</title>
+  <title>Footstep Power Generator - Tinkercad Style Virtual Lab</title>
   <style>
     :root {
-      --bg: #0b0f19;
-      --card: #161f32;
-      --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.3);
-      --green: #22c55e;
-      --text: #f8fafc;
+      --bg-lab: #1a1e29;
+      --card-bg: #222836;
+      --accent-blue: #0284c7;
+      --accent-cyan: #38bdf8;
+      --green-btn: #16a34a;
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border: #26334d;
-      --bb-color: #f1f5f9;
+      --border-color: #334155;
     }
 
     * { box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: var(--bg-lab);
+      color: var(--text-main);
       margin: 0;
-      padding: 20px;
+      padding: 15px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
     }
 
-    h1 { margin: 0 0 5px 0; color: var(--accent); font-size: 26px; }
-    p.subtitle { color: var(--text-muted); margin: 0 0 20px 0; font-size: 14px; }
+    header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
 
-    .layout-grid {
+    h1 { margin: 0; color: var(--accent-cyan); font-size: 24px; }
+    p.subtitle { color: var(--text-muted); margin: 4px 0 0 0; font-size: 13px; }
+
+    .main-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 20px;
-      max-width: 1200px;
+      grid-template-columns: 1fr 320px;
+      gap: 15px;
+      max-width: 1250px;
       width: 100%;
     }
 
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
     }
 
-    /* Workbench Canvas Styling */
-    .workbench-canvas {
+    /* Canvas Workbench */
+    .canvas-container {
       position: relative;
-      background: #111827;
-      border: 2px dashed var(--border);
-      border-radius: 10px;
-      height: 520px;
+      width: 100%;
+      background: #11151c;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
       overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      cursor: pointer;
+    }
+
+    .btn-step {
+      background: var(--green-btn);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 12px;
+      box-shadow: 0 4px 0 #15803d;
+      transition: all 0.1s ease;
+    }
+
+    .btn-step:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #15803d;
+    }
+
+    /* Dock sidebar */
+    .dock-list {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      padding: 15px;
+      gap: 6px;
+      max-height: 520px;
+      overflow-y: auto;
     }
 
-    /* Component Element Cards */
-    .interactive-comp {
-      position: absolute;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      user-select: none;
-      border-radius: 8px;
-    }
-
-    .interactive-comp:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px var(--accent-glow);
-    }
-
-    /* Hardware visuals on canvas */
-    #uno-board {
-      top: 20px; left: 20px; width: 140px; height: 100px;
-      background: #00878f; border: 2px solid #005f63;
-      color: white; font-size: 11px; font-weight: bold;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-
-    #lcd-module {
-      top: 20px; right: 20px; width: 220px; height: 90px;
-      background: #1e293b; border: 2px solid #3b82f6;
-      padding: 8px; border-radius: 6px;
-    }
-
-    .lcd-screen {
-      background: #0f3800; color: #9bbc0f;
-      font-family: 'Courier New', monospace;
-      padding: 8px; border-radius: 4px; border: 2px solid #306230;
-      font-size: 14px; font-weight: bold; letter-spacing: 1px;
-    }
-
-    #breadboard {
-      bottom: 20px; left: 20px; width: 440px; height: 160px;
-      background: var(--bb-color); border: 2px solid #cbd5e1;
-      border-radius: 6px; display: flex; flex-direction: column;
-      justify-content: space-between; padding: 10px; color: #334155;
-    }
-
-    .bb-grid {
-      display: grid; grid-template-columns: repeat(25, 1fr); gap: 2px;
-      background: #e2e8f0; padding: 4px; border-radius: 4px;
-    }
-    .bb-hole { width: 8px; height: 8px; background: #64748b; border-radius: 50%; }
-
-    #footstep-pad {
-      bottom: 20px; right: 20px; width: 220px; height: 160px;
-      background: #334155; border: 3px solid #475569;
-      border-radius: 8px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-    }
-
-    .pad-plate {
-      width: 180px; height: 80px; background: #64748b;
-      border: 2px solid #94a3b8; border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-weight: bold; font-size: 12px;
-      transition: transform 0.1s ease;
-    }
-
-    .pad-pressed { transform: translateY(8px); background: #475569; }
-
-    /* Controls */
-    .btn-step {
-      background: var(--green); color: white; border: none;
-      padding: 12px 20px; font-size: 15px; font-weight: bold;
-      border-radius: 8px; cursor: pointer; width: 100%;
-      box-shadow: 0 4px 0 #15803d; transition: all 0.1s ease; margin-top: 10px;
-    }
-    .btn-step:active { transform: translateY(4px); box-shadow: 0 0 0 #15803d; }
-
-    /* Component Dock Sidebar */
-    .dock-list { display: flex; flex-direction: column; gap: 8px; max-height: 480px; overflow-y: auto; }
     .dock-item {
-      background: #0f172a; border: 1px solid var(--border);
-      padding: 10px 12px; border-radius: 6px; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 13px; transition: background 0.2s;
+      background: #171d2a;
+      border: 1px solid var(--border-color);
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      transition: all 0.2s;
     }
-    .dock-item:hover { background: #1e293b; border-color: var(--accent); }
-    .dock-badge { background: var(--border); padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--accent); }
+
+    .dock-item:hover {
+      background: #283245;
+      border-color: var(--accent-cyan);
+    }
+
+    .dock-qty {
+      background: #0284c7;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: bold;
+    }
 
     /* Modal Popup */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px);
       display: none; align-items: center; justify-content: center; z-index: 1000;
     }
+
     .modal-card {
-      background: var(--card); border: 2px solid var(--accent);
-      border-radius: 12px; padding: 25px; max-width: 500px; width: 90%;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8); position: relative;
+      background: var(--card-bg);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
+      position: relative;
     }
+
     .modal-close {
-      position: absolute; top: 12px; right: 15px; background: none;
-      border: none; color: var(--text-muted); font-size: 22px; cursor: pointer;
+      position: absolute; top: 10px; right: 12px; background: none;
+      border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;
     }
+
     .modal-close:hover { color: white; }
-    .modal-title { color: var(--accent); margin: 0 0 10px 0; font-size: 20px; }
-    .modal-desc { line-height: 1.6; font-size: 14px; color: #cbd5e1; }
+    .modal-title { color: var(--accent-cyan); margin: 0 0 8px 0; font-size: 18px; }
+    .modal-desc { line-height: 1.5; font-size: 13px; color: #cbd5e1; }
     .modal-tag {
-      display: inline-block; background: #0284c7; color: white;
-      padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 12px;
+      display: inline-block; background: #0369a1; color: white;
+      padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-bottom: 10px; font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <h1>Footstep Power Generator Workbench</h1>
-  <p class="subtitle">Click/Touch any hardware component on the canvas or dock list to inspect its function</p>
+  <header>
+    <h1>Footstep Energy Harvester Workstation</h1>
+    <p class="subtitle">Realistic Tinkercad-Style Interactive Hardware Workbench (Touch components to inspect pinout & function)</p>
+  </header>
 
-  <div class="layout-grid">
+  <div class="main-grid">
     
-    <!-- Left: Virtual Interactive Canvas -->
+    <!-- Canvas Workshop -->
     <div class="card">
-      <div class="workbench-canvas">
-        
-        <!-- 1. Arduino UNO R3 -->
-        <div id="uno-board" class="interactive-comp" onclick="openComponentModal(1)">
-          <span>ARDUINO UNO R3</span>
-          <span style="font-size:9px; opacity:0.8;">ATmega328P</span>
-        </div>
-
-        <!-- 3 & 4. 16x2 LCD & I2C Module -->
-        <div id="lcd-module" class="interactive-comp" onclick="openComponentModal(3)">
-          <div style="font-size:10px; color:#94a3b8; margin-bottom:4px;">16x2 LCD (JHD162A) + I2C Backpack</div>
-          <div class="lcd-screen">
-            <div id="lcd-l1">FOOTSTEP POWER </div>
-            <div id="lcd-l2">GENERATOR MODEL</div>
-          </div>
-        </div>
-
-        <!-- 5. GL-12 Breadboard with Diodes, Capacitor, Transistor, Resistors, LED -->
-        <div id="breadboard" class="interactive-comp" onclick="openComponentModal(5)">
-          <div style="font-size:11px; font-weight:bold;">GL-12 Solderless Breadboard (Circuit Stage)</div>
-          <div class="bb-grid">
-            <div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div>
-            <div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div>
-            <div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div>
-            <div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div>
-            <div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div><div class="bb-hole"></div>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:bold; color:#0f172a;">
-            <span>Bridge Rectifier (4x Diodes)</span>
-            <span>100µF Cap</span>
-            <span>BC547</span>
-            <span>LED</span>
-          </div>
-        </div>
-
-        <!-- Footstep Pad Platform (Sheet + Springs + Piezo Discs) -->
-        <div id="footstep-pad" class="interactive-comp" onclick="openComponentModal(2)">
-          <div class="pad-plate" id="top-plate">
-            FOOTSTEP PRESS PAD
-          </div>
-          <div style="font-size:10px; color:#cbd5e1; margin-top:6px;">10x Piezo Discs Inside</div>
-        </div>
-
+      <div class="canvas-container">
+        <canvas id="labCanvas" width="850" height="500"></canvas>
       </div>
-
-      <button class="btn-step" onclick="simulateStep(event)">PRESS FOOTSTEP PAD (GENERATE POWER)</button>
+      <button class="btn-step" onclick="triggerStep()">PRESS FOOTSTEP PAD (APPLY MECHANICAL FORCE)</button>
     </div>
 
-    <!-- Right: All 14 Components List Dock -->
+    <!-- Right Sidebar Component Dock -->
     <div class="card">
-      <h3 style="margin-top:0; font-size:16px; color:var(--accent);">Component Inspection Dock (14 Parts)</h3>
-      <div class="dock-list" id="dock-container"></div>
+      <h3 style="margin: 0 0 10px 0; font-size: 14px; color: var(--accent-cyan);">Hardware Parts Inventory (14 Components)</h3>
+      <div class="dock-list" id="dockList"></div>
     </div>
 
   </div>
 
-  <!-- Component Modal Popup -->
+  <!-- Component Modal -->
   <div class="modal-overlay" id="modal" onclick="closeModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">×</button>
-      <span class="modal-tag" id="modal-tag">ELECTRONIC COMPONENT</span>
-      <h3 class="modal-title" id="modal-title">Component Name</h3>
-      <p class="modal-desc" id="modal-desc">Detailed explanation...</p>
+      <span class="modal-tag" id="modalTag">ELECTRONIC COMPONENT</span>
+      <h3 class="modal-title" id="modalTitle">Component Name</h3>
+      <p class="modal-desc" id="modalDesc">Detailed explanation...</p>
     </div>
   </div>
 
   <script>
-    // Database of all 14 project components
+    // Component database covering all 14 hardware parts
     const componentsDB = [
-      { id: 1, name: "1. Arduino UNO R3 + USB Cable", qty: "1 No.", tag: "MICROCONTROLLER", desc: "The central processing brain of the harvester. It receives converted DC analog voltage signals on pin A0 from the piezo circuit, calculates the voltage output, updates step counts, and outputs data to the 16x2 LCD via I2C protocol." },
-      { id: 2, name: "2. Piezoelectric Discs (35mm)", qty: "10 Nos.", tag: "TRANSDUCER ARRAY", desc: "Converts mechanical strain and footstep impact pressure into high-voltage AC electrical pulses via the piezoelectric effect. Connected in a parallel array under the footstep plate." },
-      { id: 3, name: "3. 16x2 LCD Display (JHD162A)", qty: "1 No.", tag: "DISPLAY MODULE", desc: "Displays system analytics in real time. Top row displays step count ('Steps: X'), while bottom row displays real-time harvested voltage ('Volt: X.XX V')." },
-      { id: 4, name: "4. PCF8574 I2C Module for LCD", qty: "1 No.", tag: "INTERFACE BACKPACK", desc: "Reduces required display wiring pins from 16 down to just 2 communication wires (SDA on A4, SCL on A5) using I2C serial communications." },
-      { id: 5, name: "5. GL-12 Solderless Breadboard", qty: "1 No.", tag: "PROTOTYPING PLATFORM", desc: "830-tie-point solderless breadboard that houses the full-wave bridge rectifier, smoothing capacitor, BC547 transistor switch, and resistor network without requiring soldering." },
-      { id: 6, name: "6. 1N4007 Rectifier Diodes", qty: "4 Nos.", tag: "FULL-WAVE RECTIFIER", desc: "Arranged in a 4-diode full-wave bridge configuration to convert alternating current (AC) pulses generated by the piezo elements into unidirectional direct current (DC)." },
-      { id: 7, name: "7. BC547 NPN Transistor", qty: "1 No.", tag: "TRANSISTOR SWITCH", desc: "Acts as an electronic switch. When Arduino pin 13 sends a HIGH signal upon step detection, it drives the transistor base to turn on the status LED indicator." },
-      { id: 8, name: "8. Capacitor (100µF / 25V)", qty: "1 No.", tag: "FILTER & STORAGE", desc: "Smooths out raw AC rectified voltage spikes into a stable DC voltage curve before feeding signal line A0 on the Arduino." },
-      { id: 9, name: "9. Resistor Network (1kΩ x2, 10kΩ x1)", qty: "3 Nos.", tag: "PASSIVE COMPONENTS", desc: "10kΩ resistor acts as a pull-down resistor on input A0 for signal stability. 1kΩ resistors limit base current to the BC547 transistor and protect the indicator LED." },
-      { id: 10, name: "10. Jumper Wires (M-M, M-F)", qty: "40 Pcs", tag: "INTERCONNECTS", desc: "Male-to-Male and Male-to-Female flexible jumpers providing reliable signal lines between breadboard components, Arduino Nano/UNO, and I2C LCD." },
-      { id: 11, name: "11. Small Blue LED", qty: "1 No.", tag: "VISUAL INDICATOR", desc: "Flashes brightly upon every mechanical step compression to visually confirm energy conversion and signal detection." },
-      { id: 12, name: "12. 9V Battery + Snap Cap", qty: "1 No.", tag: "PORTABLE POWER", desc: "Provides standalone portable power to the Arduino VIN line for field operation when disconnected from USB PC power." },
-      { id: 13, name: "13. Start/Stop Toggle Switch", qty: "1 No.", tag: "POWER SWITCH", desc: "Master power switch placed on the positive battery lead to turn the entire footstep harvesting and display circuit ON or OFF." },
-      { id: 14, name: "14. Footstep Pad Sheets & Springs", qty: "1 Set", tag: "MECHANICAL PLATFORM", desc: "Two 12x12 inch acrylic/wooden plates separated by 4 corner compression springs/foam blocks. Protects piezo discs while returning the top plate after impact." }
+      { id: 1, name: "1. Arduino Nano + Mini USB", qty: "1 No.", tag: "MICROCONTROLLER", desc: "Compact microcontroller based on ATmega328P. Mounted on the breadboard to monitor voltage pulses on Pin A0, process energy statistics, and display step outputs on the I2C LCD." },
+      { id: 2, name: "2. 35mm Piezoelectric Discs", qty: "10 Nos.", tag: "TRANSDUCER ARRAY", desc: "Parallel piezo element array that generates high-voltage AC electrical spikes when mechanical stress or foot pressure is applied." },
+      { id: 3, name: "3. 16x2 Character LCD (JHD162A)", qty: "1 No.", tag: "DISPLAY MODULE", desc: "16-character by 2-line liquid crystal display module with backlight that outputs real-time step counts and harvest voltage." },
+      { id: 4, name: "4. PCF8574 I2C Module", qty: "1 No.", tag: "I2C BACKPACK", desc: "Converts 16x2 LCD parallel wiring into 2-wire I2C communication interface (SDA on pin A4, SCL on pin A5)." },
+      { id: 5, name: "5. GL-12 Solderless Breadboard", qty: "1 No.", tag: "PROTOTYPING PLATFORM", desc: "830-tie-point solderless prototyping board containing internal spring clips to connect diodes, capacitor, transistor, LED, and Arduino Nano." },
+      { id: 6, name: "6. 1N4007 Rectifier Diodes", qty: "4 Nos.", tag: "FULL-WAVE BRIDGE", desc: "Configured into a 4-diode full-wave bridge rectifier circuit to convert alternating AC pulses from piezos into single-direction DC." },
+      { id: 7, name: "7. BC547 NPN Transistor", qty: "1 No.", tag: "SWITCH DRIVER", desc: "Bipolar junction transistor used as a low-side driver switch to pulse the blue status LED on digital output Pin D13 triggers." },
+      { id: 8, name: "8. 100µF / 25V Capacitor", qty: "1 No.", tag: "SMOOTHING FILTER", desc: "Electrolytic capacitor that filters raw rectified DC voltage spikes into a steady DC voltage for analog sampling." },
+      { id: 9, name: "9. Resistor Array (1kΩ x2, 10kΩ x1)", qty: "3 Nos.", tag: "PASSIVE RESISTORS", desc: "Includes a 10kΩ pull-down resistor for pin A0 stabilization, a 1kΩ transistor base current limiter, and a 1kΩ LED protection resistor." },
+      { id: 10, name: "10. Jumper Wire Kit (M-M, M-F)", qty: "40 Pcs", tag: "INTERCONNECT WIRES", desc: "Color-coded solid core copper jumper wires establishing power rails, signal paths, and I2C lines across the breadboard." },
+      { id: 11, name: "11. 5mm Blue LED Indicator", qty: "1 No.", tag: "VISUAL INDICATOR", desc: "Flashes brightly upon step impact to visually indicate that mechanical energy has been harvested and detected." },
+      { id: 12, name: "12. 9V Battery & Heavy Snap", qty: "1 No.", tag: "DC POWER SUPPLY", desc: "High-capacity 9V battery providing autonomous power to the Arduino Nano VIN rail for field deployments." },
+      { id: 13, name: "13. SPST Toggle Switch", qty: "1 No.", tag: "POWER SWITCH", desc: "Single-pole single-throw switch inline with the 9V battery red lead for system power toggle control." },
+      { id: 14, name: "14. Footstep Frame & Springs", qty: "1 Set", tag: "MECHANICAL PLATFORM", desc: "Dual acrylic/wood plates with 4 corner compression springs that shield the piezo elements and return the top plate after foot contact." }
     ];
 
-    // Populate Sidebar Component Dock
-    const dockContainer = document.getElementById('dock-container');
+    // Populate Sidebar Inventory
+    const dockContainer = document.getElementById('dockList');
     componentsDB.forEach(c => {
       const item = document.createElement('div');
       item.className = 'dock-item';
-      item.onclick = () => openComponentModal(c.id);
-      item.innerHTML = `<span>${c.name}</span><span class="dock-badge">${c.qty}</span>`;
+      item.onclick = () => openModal(c.id);
+      item.innerHTML = `<span>${c.name}</span><span class="dock-qty">${c.qty}</span>`;
       dockContainer.appendChild(item);
     });
 
-    // Modal Control Functions
-    function openComponentModal(id) {
+    // Canvas Setup
+    const canvas = document.getElementById('labCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let stepCount = 0;
+    let liveVoltage = 0.0;
+    let isPressed = false;
+    let ledBrightness = 0;
+
+    // Component hit regions on canvas
+    const hitRegions = [
+      { id: 1, x: 230, y: 175, w: 100, h: 180 }, // Arduino Nano on Breadboard
+      { id: 2, x: 580, y: 280, w: 220, h: 180 }, // Piezo Footstep Pad
+      { id: 3, x: 520, y: 30,  w: 280, h: 110 }, // 16x2 LCD
+      { id: 5, x: 80,  y: 120, w: 400, h: 320 }, // Breadboard
+      { id: 12, x: 20, y: 20,  w: 70,  h: 120 }, // 9V Battery
+      { id: 13, x: 120, y: 30, w: 60,  h: 40 }   // Toggle Switch
+    ];
+
+    // Click handler for canvas components
+    canvas.addEventListener('click', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      for (let region of hitRegions) {
+        if (clickX >= region.x && clickX <= region.x + region.w &&
+            clickY >= region.y && clickY <= region.y + region.h) {
+          openModal(region.id);
+          return;
+        }
+      }
+    });
+
+    // Render Tinkercad-style Hardware Simulation Loop
+    function renderWorkstation() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. Render GL-12 Solderless Breadboard
+      drawBreadboard(80, 120, 400, 320);
+
+      // 2. Render Arduino Nano on Breadboard
+      drawArduinoNano(230, 175);
+
+      // 3. Render Discrete Electronics (Diodes, Cap, BC547, LED)
+      drawDiscreteComponents();
+
+      // 4. Render 16x2 LCD Module (Blue Backlight)
+      drawLCDModule(520, 30);
+
+      // 5. Render 9V Battery & Toggle Switch
+      drawBattery(20, 20);
+      drawSwitch(120, 30);
+
+      // 6. Render Piezo Footstep Platform
+      drawFootstepPad(580, 280);
+
+      // 7. Render Interconnect Wires
+      drawCircuitWires();
+
+      // Fade out LED flare smoothly
+      if (ledBrightness > 0) {
+        ledBrightness -= 0.05;
+      }
+
+      requestAnimationFrame(renderWorkstation);
+    }
+
+    function drawBreadboard(x, y, w, h) {
+      // Main Body
+      ctx.fillStyle = "#e2e8f0";
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 8);
+      ctx.fill();
+      ctx.stroke();
+
+      // Center Divider
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillRect(x + 10, y + h / 2 - 4, w - 20, 8);
+
+      // Bus Power Lines
+      ctx.strokeStyle = "#ef4444"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x + 15, y + 15); ctx.lineTo(x + w - 15, y + 15); ctx.stroke();
+      ctx.strokeStyle = "#3b82f6";
+      ctx.beginPath(); ctx.moveTo(x + 15, y + 25); ctx.lineTo(x + w - 15, y + 25); ctx.stroke();
+
+      // Grid Holes
+      ctx.fillStyle = "#475569";
+      for (let gx = x + 20; gx < x + w - 15; gx += 12) {
+        for (let gy = y + 35; gy < y + h - 15; gy += 12) {
+          if (gy > y + h / 2 - 10 && gy < y + h / 2 + 10) continue;
+          ctx.beginPath();
+          ctx.arc(gx, gy, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function drawArduinoNano(x, y) {
+      // PCB Board
+      ctx.fillStyle = "#00878f";
+      ctx.strokeStyle = "#005f63";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, 100, 180, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // ATmega328P IC Chip
+      ctx.fillStyle = "#1e293b";
+      ctx.fillRect(x + 30, y + 50, 40, 80);
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "9px sans-serif";
+      ctx.fillText("ATmega328P", x + 31, y + 95);
+
+      // Mini USB Connector
+      ctx.fillStyle = "#cbd5e1";
+      ctx.fillRect(x + 35, y, 30, 15);
+
+      // Header Pins
+      ctx.fillStyle = "#fbbf24";
+      for (let py = y + 10; py <= y + 170; py += 11) {
+        ctx.fillRect(x + 5, py, 6, 6);
+        ctx.fillRect(x + 89, py, 6, 6);
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 11px sans-serif";
+      ctx.fillText("NANO", x + 33, y + 35);
+    }
+
+    function drawLCDModule(x, y) {
+      // PCB Blue Board
+      ctx.fillStyle = "#1d4ed8";
+      ctx.beginPath();
+      ctx.roundRect(x, y, 280, 110, 8);
+      ctx.fill();
+
+      // Screen Frame
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(x + 15, y + 15, 250, 80);
+
+      // Backlight LCD Glass
+      ctx.fillStyle = "#0284c7";
+      ctx.fillRect(x + 25, y + 25, 230, 60);
+
+      // LCD Screen Text Output
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 15px monospace";
+      ctx.fillText(`Steps: ${stepCount}`.padEnd(16, ' '), x + 35, y + 50);
+      ctx.fillText(`Volt : ${liveVoltage.toFixed(2)}V`.padEnd(16, ' '), x + 35, y + 72);
+    }
+
+    function drawBattery(x, y) {
+      ctx.fillStyle = "#334155";
+      ctx.beginPath(); ctx.roundRect(x, y, 70, 120, 6); ctx.fill();
+      ctx.fillStyle = "#f59e0b"; ctx.fillRect(x, y + 30, 70, 40);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 12px sans-serif"; ctx.fillText("9V", x + 26, y + 55);
+      // Terminal Caps
+      ctx.fillStyle = "#cbd5e1";
+      ctx.fillRect(x + 15, y - 8, 15, 8);
+      ctx.fillRect(x + 40, y - 8, 15, 8);
+    }
+
+    function drawSwitch(x, y) {
+      ctx.fillStyle = "#475569";
+      ctx.fillRect(x, y, 60, 40);
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(x + 10, y + 8, 20, 24);
+      ctx.fillStyle = "#ffffff"; ctx.font = "9px sans-serif"; ctx.fillText("ON", x + 35, y + 25);
+    }
+
+    function drawFootstepPad(x, y) {
+      // Base Plate
+      ctx.fillStyle = "#334155";
+      ctx.beginPath(); ctx.roundRect(x, y, 220, 180, 8); ctx.fill();
+
+      // 4 Corner Springs
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillRect(x + 15, y + 15, 15, 15);
+      ctx.fillRect(x + 190, y + 15, 15, 15);
+      ctx.fillRect(x + 15, y + 150, 15, 15);
+      ctx.fillRect(x + 190, y + 150, 15, 15);
+
+      // Piezo Discs Inside Array
+      ctx.fillStyle = "#f59e0b"; ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 2;
+      for (let px = x + 50; px <= x + 150; px += 50) {
+        for (let py = y + 45; py <= y + 125; py += 40) {
+          ctx.beginPath(); ctx.arc(px, py, 14, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = "#e2e8f0";
+          ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#f59e0b";
+        }
+      }
+
+      // Animated Top Pressure Plate
+      const offsetY = isPressed ? 8 : 0;
+      ctx.fillStyle = "rgba(71, 85, 105, 0.85)";
+      ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x + 10, y + 10 + offsetY, 200, 160, 6);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 13px sans-serif";
+      ctx.fillText("FOOTSTEP PRESSURE PLATE", x + 20, y + 90 + offsetY);
+    }
+
+    function drawDiscreteComponents() {
+      // 100uF Electrolytic Capacitor (Blue Cylinder)
+      ctx.fillStyle = "#1e40af";
+      ctx.fillRect(360, 260, 16, 30);
+      ctx.fillStyle = "#cbd5e1"; ctx.fillRect(360, 260, 4, 30);
+
+      // 1N4007 Diodes (Black cylinder with silver stripe)
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(120, 280, 25, 10);
+      ctx.fillStyle = "#e2e8f0"; ctx.fillRect(140, 280, 5, 10);
+
+      // BC547 Transistor (TO-92 Package)
+      ctx.fillStyle = "#0f172a";
+      ctx.beginPath(); ctx.arc(410, 320, 10, 0, Math.PI); ctx.fill();
+
+      // 5mm Blue Status LED & Glow Flare
+      ctx.fillStyle = "#0284c7";
+      ctx.beginPath(); ctx.arc(440, 200, 8, 0, Math.PI * 2); ctx.fill();
+
+      if (ledBrightness > 0) {
+        ctx.fillStyle = `rgba(56, 189, 248, ${ledBrightness})`;
+        ctx.beginPath(); ctx.arc(440, 200, 25, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    function drawCircuitWires() {
+      ctx.lineWidth = 3; ctx.lineCap = "round";
+
+      // 9V Battery to Switch
+      ctx.strokeStyle = "#ef4444";
+      ctx.beginPath(); ctx.moveTo(35, 12); ctx.lineTo(120, 45); ctx.stroke();
+
+      // Switch to Arduino VIN
+      ctx.beginPath(); ctx.moveTo(180, 45); ctx.lineTo(240, 185); ctx.stroke();
+
+      // I2C Wires (LCD to Nano SDA/SCL)
+      ctx.strokeStyle = "#f59e0b"; // SDA
+      ctx.beginPath(); ctx.moveTo(520, 80); ctx.lineTo(320, 305); ctx.stroke();
+      ctx.strokeStyle = "#10b981"; // SCL
+      ctx.beginPath(); ctx.moveTo(520, 90); ctx.lineTo(320, 315); ctx.stroke();
+
+      // Piezo signal wire to Bridge Rectifier
+      ctx.strokeStyle = "#ef4444";
+      ctx.beginPath(); ctx.moveTo(580, 350); ctx.lineTo(145, 285); ctx.stroke();
+    }
+
+    // Interactive Trigger Handler
+    function triggerStep() {
+      stepCount++;
+      liveVoltage = Math.random() * (3.8 - 1.4) + 1.4;
+      isPressed = true;
+      ledBrightness = 1.0;
+
+      setTimeout(() => { isPressed = false; }, 150);
+    }
+
+    // Modal Control
+    function openModal(id) {
       const comp = componentsDB.find(c => c.id === id) || componentsDB[0];
-      document.getElementById('modal-title').innerText = comp.name;
-      document.getElementById('modal-tag').innerText = comp.tag;
-      document.getElementById('modal-desc').innerText = comp.desc;
+      document.getElementById('modalTitle').innerText = comp.name;
+      document.getElementById('modalTag').innerText = comp.tag;
+      document.getElementById('modalDesc').innerText = comp.desc;
       document.getElementById('modal').style.display = 'flex';
     }
 
@@ -292,22 +500,8 @@
       }
     }
 
-    // Step Simulation Logic
-    let stepCount = 0;
-    function simulateStep(e) {
-      if (e) e.stopPropagation();
-      stepCount++;
-      const v = (Math.random() * (3.6 - 1.4) + 1.4).toFixed(2);
-      
-      // Animate top plate
-      const plate = document.getElementById('top-plate');
-      plate.classList.add('pad-pressed');
-      setTimeout(() => plate.classList.remove('pad-pressed'), 150);
-
-      // Update LCD Text
-      document.getElementById('lcd-l1').innerText = `Steps: ${stepCount}`.padEnd(16, ' ');
-      document.getElementById('lcd-l2').innerText = `Volt : ${v}V`.padEnd(16, ' ');
-    }
+    // Launch Canvas Render Engine
+    renderWorkstation();
   </script>
 </body>
 </html>
