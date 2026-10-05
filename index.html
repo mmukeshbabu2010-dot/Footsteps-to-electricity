@@ -3,535 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Footstep Power Generator - Interactive Breadboard & Circuit Simulator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Footstep Power Generation Simulator</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700&display=swap');
-    
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --border: #334155;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .font-mono-code {
-      font-family: 'Fira Code', monospace;
+    h1 {
+      margin-bottom: 5px;
+      color: var(--accent);
     }
 
-    /* Green Matrix LCD Font Effect */
-    .lcd-screen {
-      background: #122112;
-      border: 4px solid #1e3a1e;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-      font-family: 'Fira Code', monospace;
-      color: #33ff33;
-      text-shadow: 0 0 5px rgba(51, 255, 51, 0.7);
+    p.subtitle {
+      color: #94a3b8;
+      margin-top: 0;
+      margin-bottom: 25px;
     }
 
-    .lcd-off {
-      color: #1a331a;
-      text-shadow: none;
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1000px;
+      width: 100%;
     }
 
-    /* Glow animations */
-    .led-glow-blue {
-      box-shadow: 0 0 15px #3b82f6, 0 0 30px #60a5fa;
-      background-color: #60a5fa !important;
-    }
-
-    .piezo-pulse {
-      animation: pulse-ring 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
-    }
-
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-      70% { transform: scale(1.03); box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-    }
-
-    /* Canvas styling */
-    #breadboardCanvas {
-      background-color: #1e293b;
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      touch-action: none;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .lcd-screen {
+      background: #0f3800;
+      color: #9bbc0f;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 15px;
+      border-radius: 8px;
+      border: 4px solid #306230;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+      margin-bottom: 15px;
+    }
+
+    .btn-press {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.1s ease;
+      box-shadow: 0 4px 0 #15803d;
+    }
+
+    .btn-press:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #15803d;
+    }
+
+    .led-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: #1e3a8a;
+      border: 2px solid #3b82f6;
+      display: inline-block;
+      margin-left: 10px;
+      transition: background-color 0.1s ease;
+    }
+
+    .led-active {
+      background-color: #60a5fa;
+      box-shadow: 0 0 15px #60a5fa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #334155;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-  <!-- Header -->
-  <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
-    <div class="flex items-center space-x-3">
-      <div class="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 text-white">
-        <i class="fa-solid fa-shoe-prints text-xl"></i>
-      </div>
-      <div>
-        <h1 class="text-lg font-bold text-white tracking-wide">Footstep Power Generator</h1>
-        <p class="text-xs text-slate-400">ISC Class 11 Physics Hardware & Circuit Simulator</p>
-      </div>
-    </div>
+  <h1>Footstep Power Generator & Energy Harvester</h1>
+  <p class="subtitle">System Monitor & Hardware Simulation Interface</p>
 
-    <!-- Mode Selector Controls -->
-    <div class="flex items-center gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
-      <button id="viewBreadboardBtn" onclick="switchView('breadboard')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white transition">
-        <i class="fa-solid fa-microchip mr-1.5"></i> Breadboard View
-      </button>
-      <button id="viewSchematicBtn" onclick="switchView('schematic')" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-diagram-project mr-1.5"></i> Schematic Diagram
-      </button>
-      <button id="viewGuideBtn" onclick="switchView('guide')" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-list-check mr-1.5"></i> Pin-out Guide
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Body Grid -->
-  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
+  <div class="container">
     
-    <!-- Left Column: Controls & Dynamic Output (4 cols) -->
-    <div class="lg:col-span-4 flex flex-col gap-6">
-      
-      <!-- Footstep Trigger Interactive Pad -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <i class="fa-solid fa-[#3b82f6] fa-compress"></i> Piezo Sensor Pad
-          </h2>
-          <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Ready</span>
-        </div>
-
-        <button id="stepButton" onclick="triggerFootstep()" class="w-full py-8 bg-gradient-to-b from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 active:scale-95 text-white rounded-2xl shadow-lg shadow-blue-600/30 font-bold text-lg flex flex-col items-center justify-center transition-all group">
-          <i class="fa-solid fa-shoe-prints text-4xl mb-2 group-hover:scale-110 transition-transform"></i>
-          <span>PRESS FOOTSTEP PAD</span>
-          <span class="text-xs font-normal text-blue-200 mt-1">Simulates Mechanical Energy Input</span>
-        </button>
-
-        <!-- Dynamic Energy Gauges -->
-        <div class="grid grid-cols-2 gap-3 mt-4">
-          <div class="bg-slate-800/80 border border-slate-700/60 p-3 rounded-xl">
-            <span class="text-xs text-slate-400 block mb-1">Generated Peak</span>
-            <span id="peakVoltText" class="text-xl font-bold text-amber-400 font-mono-code">0.00 V</span>
-          </div>
-          <div class="bg-slate-800/80 border border-slate-700/60 p-3 rounded-xl">
-            <span class="text-xs text-slate-400 block mb-1">Smoothed DC</span>
-            <span id="dcVoltText" class="text-xl font-bold text-emerald-400 font-mono-code">0.00 V</span>
-          </div>
-        </div>
+    <!-- Control & LCD Simulator -->
+    <div class="card">
+      <h3>Live LCD Monitor (16x2 I2C)</h3>
+      <div class="lcd-screen" id="lcd">
+        <div id="lcd-line1">FOOTSTEP POWER </div>
+        <div id="lcd-line2">GENERATOR MODEL</div>
       </div>
 
-      <!-- Live 16x2 I2C LCD Visualizer -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <i class="fa-solid fa-tv"></i> 16x2 I2C LCD Display
-          </h2>
-          <span class="text-xs font-mono-code text-slate-500">ADDR: 0x27</span>
-        </div>
-
-        <div class="lcd-screen p-4 rounded-xl border border-emerald-900/50 shadow-inner min-h-[100px] flex flex-col justify-between">
-          <div id="lcdLine1" class="text-base tracking-widest font-semibold flex justify-between">
-            <span>FOOTSTEP POWER</span>
-          </div>
-          <div id="lcdLine2" class="text-base tracking-widest font-semibold flex justify-between">
-            <span>GENERATOR MODEL</span>
-          </div>
-        </div>
-
-        <div class="flex justify-between items-center mt-3 text-xs text-slate-400">
-          <span><i class="fa-solid fa-circle text-[8px] text-emerald-400 mr-1"></i> I2C Backlight ON</span>
-          <button onclick="resetCounters()" class="text-xs text-slate-400 hover:text-rose-400 transition flex items-center gap-1">
-            <i class="fa-solid fa-rotate-right"></i> Reset Counter
-          </button>
-        </div>
+      <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <span>Status LED (Pin 13):</span>
+        <div class="led-indicator" id="led"></div>
       </div>
 
-      <!-- Hardware Components Inspector -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col justify-between">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-microchip"></i> Hardware Manifest
-        </h2>
-        
-        <div class="space-y-2 text-xs text-slate-300 overflow-y-auto max-h-[220px] pr-1">
-          <div class="flex justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
-            <span>Arduino Nano (ATmega328P)</span>
-            <span class="text-blue-400 font-medium">A0, A4, A5, D13</span>
-          </div>
-          <div class="flex justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
-            <span>Bridge Rectifier (4x 1N4007)</span>
-            <span class="text-amber-400 font-medium">AC to DC</span>
-          </div>
-          <div class="flex justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
-            <span>Smoothing Capacitor</span>
-            <span class="text-emerald-400 font-medium">100µF / 25V</span>
-          </div>
-          <div class="flex justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
-            <span>Indicator Switch Transistor</span>
-            <span class="text-purple-400 font-medium">BC547 NPN</span>
-          </div>
-          <div class="flex justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-800">
-            <span>Indicator Output</span>
-            <span class="text-blue-400 font-medium">Blue LED</span>
-          </div>
-        </div>
-      </div>
-
+      <button class="btn-press" onclick="triggerFootstep()">PRESS FOOTSTEP PAD</button>
     </div>
 
-    <!-- Right Column: Interactive Canvas / Diagram / Guide (8 cols) -->
-    <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[500px]">
-      
-      <!-- Interactive Breadboard View -->
-      <div id="breadboardContainer" class="w-full flex-1 flex flex-col items-center justify-center relative">
-        <div class="w-full flex justify-between items-center mb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400">Board Model:</span>
-            <span class="text-xs font-semibold bg-slate-800 text-slate-200 px-2.5 py-1 rounded-md border border-slate-700">GL-12 Solderless Breadboard</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="flex items-center text-xs text-slate-400"><span class="w-3 h-3 rounded-full bg-red-500 inline-block mr-1"></span> +5V Rail</span>
-            <span class="flex items-center text-xs text-slate-400"><span class="w-3 h-3 rounded-full bg-black inline-block mr-1"></span> GND Rail</span>
-          </div>
-        </div>
-
-        <div class="w-full overflow-x-auto flex justify-center py-2">
-          <canvas id="breadboardCanvas" width="850" height="420" class="shadow-2xl max-w-full h-auto cursor-pointer"></canvas>
-        </div>
-      </div>
-
-      <!-- Schematic Diagram View (Hidden by Default) -->
-      <div id="schematicContainer" class="hidden w-full flex-1 flex flex-col items-center justify-center p-4">
-        <div class="w-full bg-slate-950 p-6 rounded-xl border border-slate-800">
-          <h3 class="text-center font-bold text-slate-200 text-lg mb-4">Full Footstep Generator Circuit Schematic</h3>
-          <svg viewBox="0 0 700 350" class="w-full h-auto">
-            <!-- Background grid -->
-            <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="1"/>
-              </pattern>
-            </defs>
-            <rect width="1000" height="500" fill="url(#grid)" />
-
-            <!-- Piezo Source -->
-            <circle cx="80" cy="180" r="25" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
-            <text x="80" y="184" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="bold">PIEZO</text>
-
-            <!-- Bridge Rectifier -->
-            <polygon points="220,180 250,150 280,180 250,210" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
-            <text x="250" y="184" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="bold">RECTIFIER</text>
-
-            <!-- Capacitor -->
-            <line x1="340" y1="160" x2="340" y2="200" stroke="#10b981" stroke-width="4"/>
-            <line x1="350" y1="160" x2="350" y2="200" stroke="#10b981" stroke-width="2" stroke-dasharray="2,2"/>
-            <text x="345" y="220" text-anchor="middle" fill="#10b981" font-size="9">100uF</text>
-
-            <!-- Arduino Block -->
-            <rect x="440" y="100" width="120" height="160" rx="8" fill="#0f172a" stroke="#06b6d4" stroke-width="2"/>
-            <text x="500" y="130" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="bold">ARDUINO</text>
-            <text x="500" y="145" text-anchor="middle" fill="#06b6d4" font-size="12" font-weight="bold">NANO</text>
-
-            <!-- Pin Labels -->
-            <text x="450" y="175" fill="#e2e8f0" font-size="9">A0 (Analog)</text>
-            <text x="450" y="195" fill="#e2e8f0" font-size="9">A4 (SDA)</text>
-            <text x="450" y="215" fill="#e2e8f0" font-size="9">A5 (SCL)</text>
-            <text x="530" y="175" fill="#e2e8f0" font-size="9">D13</text>
-
-            <!-- LCD Block -->
-            <rect x="590" y="180" width="80" height="60" rx="4" fill="#022c22" stroke="#10b981" stroke-width="1.5"/>
-            <text x="630" y="215" text-anchor="middle" fill="#34d399" font-size="9" font-weight="bold">16x2 LCD</text>
-
-            <!-- Wires -->
-            <!-- Piezo to Rectifier -->
-            <path d="M 105 180 L 220 180" fill="none" stroke="#3b82f6" stroke-width="2"/>
-            <!-- Rectifier to Cap & A0 -->
-            <path d="M 280 180 L 345 180 L 440 175" fill="none" stroke="#f59e0b" stroke-width="2"/>
-            <!-- Arduino to LCD -->
-            <path d="M 500 200 L 590 200" fill="none" stroke="#a855f7" stroke-width="2"/>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Pin-out Guide View (Hidden by Default) -->
-      <div id="guideContainer" class="hidden w-full flex-1 overflow-y-auto">
-        <h3 class="font-bold text-slate-200 text-base mb-3">Hardware Wiring & Coordinate Guide</h3>
-        
-        <div class="space-y-4 text-sm">
-          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-            <h4 class="font-semibold text-blue-400 mb-2 flex items-center gap-2">
-              <i class="fa-solid fa-plug"></i> 1. I2C LCD Display Module
-            </h4>
-            <ul class="list-disc list-inside text-slate-300 space-y-1 text-xs font-mono-code">
-              <li>LCD VCC → Arduino 5V Rail</li>
-              <li>LCD GND → Arduino GND Rail</li>
-              <li>LCD SDA → Arduino Nano Pin A4</li>
-              <li>LCD SCL → Arduino Nano Pin A5</li>
-            </ul>
-          </div>
-
-          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-            <h4 class="font-semibold text-amber-400 mb-2 flex items-center gap-2">
-              <i class="fa-solid fa-bolt"></i> 2. Full-Wave Bridge Rectifier (1N4007 Diodes)
-            </h4>
-            <p class="text-xs text-slate-300 mb-2">Converts the AC voltage spikes from mechanical foot pressure into unidirectional DC pulses.</p>
-            <ul class="list-disc list-inside text-slate-300 space-y-1 text-xs font-mono-code">
-              <li>Diode 1 & 2 Anodes → Ground (-) Rail</li>
-              <li>Diode 3 & 4 Cathodes → Capacitor (+) & Arduino Pin A0</li>
-              <li>Piezo Leads → AC junction points between Diodes</li>
-            </ul>
-          </div>
-
-          <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-            <h4 class="font-semibold text-emerald-400 mb-2 flex items-center gap-2">
-              <i class="fa-solid fa-microchip"></i> 3. BC547 Transistor & LED Indicator Switch
-            </h4>
-            <ul class="list-disc list-inside text-slate-300 space-y-1 text-xs font-mono-code">
-              <li>Base (Middle Pin) → 1kΩ Resistor → Arduino Digital Pin 13</li>
-              <li>Collector (Right Pin) → Ground (-) Rail</li>
-              <li>Emitter (Left Pin) → Blue LED Cathode (-)</li>
-              <li>Blue LED Anode (+) → 220Ω Resistor → 5V Rail</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
+    <!-- Hardware Component Overview -->
+    <div class="card">
+      <h3>System Component Status</h3>
+      <table>
+        <tr><th>Module / Part</th><th>Specification</th><th>Status</th></tr>
+        <tr><td>Microcontroller</td><td>Arduino UNO R3</td><td><span style="color: var(--green);">Active</span></td></tr>
+        <tr><td>Sensor Array</td><td>10x Piezo Discs (35mm)</td><td>Ready</td></tr>
+        <tr><td>Rectification</td><td>4x 1N4007 Bridge</td><td>Active</td></tr>
+        <tr><td>Capacitor Filter</td><td>100µF / 25V</td><td>Charging</td></tr>
+        <tr><td>Transistor Switch</td><td>BC547 NPN</td><td>Ready</td></tr>
+        <tr><td>Power Input</td><td>9V Battery + Switch</td><td>Connected</td></tr>
+      </table>
     </div>
 
-  </main>
+  </div>
 
-  <!-- Interactive JavaScript -->
   <script>
-    // State Management
     let stepCount = 0;
-    let currentVoltage = 0.0;
-    let smoothedDC = 0.0;
-    let activeGlow = false;
-    let canvas, ctx;
+    let isBooting = true;
 
-    // Window Init
-    window.onload = function() {
-      canvas = document.getElementById('breadboardCanvas');
-      ctx = canvas.getContext('2d');
-      drawBreadboard();
-      updateLCDDisplay();
-    };
+    // Boot Delay Simulation
+    setTimeout(() => {
+      isBooting = false;
+      updateDisplay(0, 0.0);
+    }, 2000);
 
-    // View Switcher Logic
-    function switchView(mode) {
-      const bbView = document.getElementById('breadboardContainer');
-      const schView = document.getElementById('schematicContainer');
-      const guideView = document.getElementById('guideContainer');
-
-      const bbBtn = document.getElementById('viewBreadboardBtn');
-      const schBtn = document.getElementById('viewSchematicBtn');
-      const guideBtn = document.getElementById('viewGuideBtn');
-
-      // Reset classes
-      [bbBtn, schBtn, guideBtn].forEach(btn => {
-        btn.className = "px-4 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
-      });
-
-      bbView.classList.add('hidden');
-      schView.classList.add('hidden');
-      guideView.classList.add('hidden');
-
-      if (mode === 'breadboard') {
-        bbView.classList.remove('hidden');
-        bbBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white transition";
-      } else if (mode === 'schematic') {
-        schView.classList.remove('hidden');
-        schBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white transition";
-      } else if (mode === 'guide') {
-        guideView.classList.remove('hidden');
-        guideBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white transition";
-      }
-    }
-
-    // Footstep Action Trigger
     function triggerFootstep() {
-      // Increment step
+      if (isBooting) return;
+
       stepCount++;
+      const generatedVolt = (Math.random() * (3.8 - 1.2) + 1.2).toFixed(2);
 
-      // Simulate Piezo Voltage Generation (2.8V - 4.5V AC pulse peak)
-      currentVoltage = (2.8 + Math.random() * 1.7).toFixed(2);
-      
-      // Simulate smoothed capacitor voltage output (approx 70% of peak AC)
-      smoothedDC = (currentVoltage * 0.72).toFixed(2);
+      // Flash LED
+      const led = document.getElementById('led');
+      led.classList.add('led-active');
 
-      // Trigger Visual LED Glow
-      activeGlow = true;
-      drawBreadboard();
+      updateDisplay(stepCount, generatedVolt);
 
-      // Update Dashboard UI
-      document.getElementById('peakVoltText').innerText = `${currentVoltage} V`;
-      document.getElementById('dcVoltText').innerText = `${smoothedDC} V`;
-
-      // Update LCD display
-      updateLCDDisplay();
-
-      // Reset LED animation state
       setTimeout(() => {
-        activeGlow = false;
-        drawBreadboard();
-      }, 350);
+        led.classList.remove('led-active');
+      }, 200);
     }
 
-    function resetCounters() {
-      stepCount = 0;
-      currentVoltage = 0.0;
-      smoothedDC = 0.0;
-      document.getElementById('peakVoltText').innerText = "0.00 V";
-      document.getElementById('dcVoltText').innerText = "0.00 V";
-      updateLCDDisplay();
-    }
-
-    function updateLCDDisplay() {
-      const line1 = document.getElementById('lcdLine1');
-      const line2 = document.getElementById('lcdLine2');
-
-      if (stepCount === 0) {
-        line1.innerHTML = `<span>FOOTSTEP POWER</span>`;
-        line2.innerHTML = `<span>GENERATOR MODEL</span>`;
-      } else {
-        line1.innerHTML = `<span>STEPS: ${stepCount}</span><span>VOLT</span>`;
-        line2.innerHTML = `<span>GEN: ${smoothedDC}V</span><span>[OK]</span>`;
-      }
-    }
-
-    // Canvas Breadboard Graphic Renderer
-    function drawBreadboard() {
-      if (!ctx) return;
-
-      // Clear Canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 1. Draw Breadboard Body
-      ctx.fillStyle = "#e2e8f0";
-      ctx.beginPath();
-      ctx.roundRect(40, 40, 770, 340, 12);
-      ctx.fill();
-      ctx.strokeStyle = "#cbd5e1";
-      ctx.strokeWidth = 2;
-      ctx.stroke();
-
-      // Power Rails Lines (Red & Blue)
-      ctx.strokeStyle = "#ef4444"; // +5V
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(70, 65); ctx.lineTo(780, 65);
-      ctx.stroke();
-
-      ctx.strokeStyle = "#3b82f6"; // GND
-      ctx.beginPath();
-      ctx.moveTo(70, 80); ctx.lineTo(780, 80);
-      ctx.stroke();
-
-      // Pin Holes Grid
-      ctx.fillStyle = "#64748b";
-      for (let x = 70; x <= 780; x += 14) {
-        // Top Rails
-        ctx.fillRect(x, 62, 4, 4);
-        ctx.fillRect(x, 77, 4, 4);
-
-        // Terminal Strip Top & Bottom
-        for (let y = 110; y <= 200; y += 18) {
-          ctx.fillRect(x, y, 4, 4);
-        }
-        for (let y = 240; y <= 330; y += 18) {
-          ctx.fillRect(x, y, 4, 4);
-        }
-      }
-
-      // Middle Divider Line
-      ctx.fillStyle = "#cbd5e1";
-      ctx.fillRect(40, 215, 770, 10);
-
-      // 2. Draw Arduino Nano Chip Body
-      ctx.fillStyle = "#0284c7";
-      ctx.beginPath();
-      ctx.roundRect(100, 140, 130, 150, 6);
-      ctx.fill();
-      ctx.fillStyle = "#0f172a";
-      ctx.fillRect(140, 180, 50, 50); // ATmega chip
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 10px Fira Code";
-      ctx.fillText("ARDUINO NANO", 115, 160);
-
-      // Nano Pins
-      ctx.fillStyle = "#94a3b8";
-      for (let i = 0; i < 12; i++) {
-        ctx.fillRect(105 + i * 10, 135, 4, 8);
-        ctx.fillRect(105 + i * 10, 287, 4, 8);
-      }
-
-      // 3. Draw Diodes (Bridge Rectifier)
-      const diodeX = 300;
-      ctx.fillStyle = "#1e293b";
-      for(let d=0; d<4; d++) {
-        ctx.fillRect(diodeX + (d*25), 120 + (d%2)*30, 16, 8);
-        // Cathode Stripe
-        ctx.fillStyle = "#cbd5e1";
-        ctx.fillRect(diodeX + (d*25) + 12, 120 + (d%2)*30, 3, 8);
-        ctx.fillStyle = "#1e293b";
-      }
-      ctx.font = "9px Inter";
-      ctx.fillStyle = "#475569";
-      ctx.fillText("1N4007 Rectifier", diodeX, 110);
-
-      // 4. Draw Electrolytic Capacitor
-      ctx.fillStyle = "#10b981";
-      ctx.beginPath();
-      ctx.arc(450, 150, 14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 8px Inter";
-      ctx.fillText("100uF", 437, 153);
-
-      // 5. Draw BC547 NPN Transistor
-      ctx.fillStyle = "#0f172a";
-      ctx.beginPath();
-      ctx.arc(540, 160, 10, 0, Math.PI);
-      ctx.fill();
-      ctx.fillStyle = "#475569";
-      ctx.font = "8px Inter";
-      ctx.fillText("BC547", 527, 180);
-
-      // 6. Draw Blue LED Indicator
-      ctx.beginPath();
-      ctx.arc(640, 160, 12, 0, Math.PI * 2);
-      ctx.fillStyle = activeGlow ? "#60a5fa" : "#1d4ed8";
-      ctx.fill();
-      if (activeGlow) {
-        ctx.strokeStyle = "#93c5fd";
-        ctx.lineWidth = 4;
-        ctx.stroke();
-      }
-
-      // 7. Wires Connecting Elements
-      // Power Wire (Red)
-      ctx.strokeStyle = "#ef4444";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(110, 140); ctx.lineTo(110, 65);
-      ctx.stroke();
-
-      // Ground Wire (Black)
-      ctx.strokeStyle = "#09090b";
-      ctx.beginPath();
-      ctx.moveTo(120, 140); ctx.lineTo(120, 80);
-      ctx.stroke();
-
-      // Signal A0 Wire (Green)
-      ctx.strokeStyle = "#10b981";
-      ctx.beginPath();
-      ctx.moveTo(150, 287); ctx.lineTo(150, 320); ctx.lineTo(450, 320); ctx.lineTo(450, 164);
-      ctx.stroke();
-
-      // LED Drive Pin 13 Wire (Purple)
-      ctx.strokeStyle = "#a855f7";
-      ctx.beginPath();
-      ctx.moveTo(210, 140); ctx.lineTo(210, 100); ctx.lineTo(540, 100); ctx.lineTo(540, 150);
-      ctx.stroke();
+    function updateDisplay(steps, volt) {
+      document.getElementById('lcd-line1').innerText = `Steps: ${steps}`.padEnd(16, ' ');
+      document.getElementById('lcd-line2').innerText = `Volt : ${volt}V`.padEnd(16, ' ');
     }
   </script>
+
 </body>
 </html>
