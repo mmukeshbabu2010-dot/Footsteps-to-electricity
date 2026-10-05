@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "author": "Footstep Power Generation Project",
+  "author": "Footstep Power Generation Project (Arduino Nano)",
   "editor": "wokwi",
   "parts": [
     { "type": "wokwi-breadboard", "id": "bb1", "top": 0, "left": 0, "attrs": {} },
-    { "type": "wokwi-arduino-uno", "id": "uno", "top": -260, "left": 0, "attrs": {} },
+    { "type": "wokwi-arduino-nano", "id": "nano", "top": 12, "left": -67, "attrs": {} },
     {
       "type": "wokwi-lcd1602",
       "id": "lcd",
@@ -38,16 +38,16 @@
   ],
   "connections": [
     [ "bat1:V+", "sw1:1", "red", [ "v0" ] ],
-    [ "sw1:2", "uno:VIN", "red", [ "v0" ] ],
-    [ "bat1:V-", "uno:GND.1", "black", [ "v0" ] ],
+    [ "sw1:2", "nano:VIN", "red", [ "v0" ] ],
+    [ "bat1:V-", "nano:GND.1", "black", [ "v0" ] ],
 
-    [ "uno:5V", "bb1:tp.15", "red", [ "v0" ] ],
-    [ "uno:GND.2", "bb1:tn.15", "black", [ "v0" ] ],
+    [ "nano:5V", "bb1:tp.15", "red", [ "v0" ] ],
+    [ "nano:GND.2", "bb1:tn.15", "black", [ "v0" ] ],
 
     [ "bb1:tp.15", "lcd:VCC", "red", [ "v0" ] ],
     [ "bb1:tn.15", "lcd:GND", "black", [ "v0" ] ],
-    [ "uno:A4", "lcd:SDA", "blue", [ "v0" ] ],
-    [ "uno:A5", "lcd:SCL", "yellow", [ "v0" ] ],
+    [ "nano:A4", "lcd:SDA", "blue", [ "v0" ] ],
+    [ "nano:A5", "lcd:SCL", "yellow", [ "v0" ] ],
 
     [ "bb1:tp.15", "piezo_array:1.A", "red", [ "v0" ] ],
     [ "piezo_array:2.A", "d1:A", "orange", [ "v0" ] ],
@@ -58,12 +58,12 @@
     [ "d2:K", "cap1:1", "red", [ "v0" ] ],
     [ "d4:K", "cap1:1", "red", [ "v0" ] ],
 
-    [ "cap1:1", "uno:A0", "green", [ "v0" ] ],
+    [ "cap1:1", "nano:A0", "green", [ "v0" ] ],
     [ "cap1:1", "r_pullup:1", "green", [ "v0" ] ],
     [ "r_pullup:2", "bb1:tn.15", "black", [ "v0" ] ],
     [ "cap1:2", "bb1:tn.15", "black", [ "v0" ] ],
 
-    [ "uno:13", "r_base:1", "purple", [ "v0" ] ],
+    [ "nano:13", "r_base:1", "purple", [ "v0" ] ],
     [ "r_base:2", "q1:B", "purple", [ "v0" ] ],
     [ "q1:C", "bb1:tn.15", "black", [ "v0" ] ],
     [ "q1:E", "led1:K", "black", [ "v0" ] ],
