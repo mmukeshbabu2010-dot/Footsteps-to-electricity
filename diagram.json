@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "author": "Footstep Power Generation Project",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard", "id": "bb1", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": -260, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd",
+      "top": -260,
+      "left": 360,
+      "attrs": { "pins": "i2c" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "piezo_array",
+      "top": 240,
+      "left": -220,
+      "attrs": { "color": "green", "label": "10x Piezo Array" }
+    },
+    { "type": "wokwi-toggle-switch", "id": "sw1", "top": -80, "left": -220, "attrs": { "label": "Start/Stop Switch" } },
+    { "type": "wokwi-battery-9v", "id": "bat1", "top": -240, "left": -220, "attrs": {} },
+    
+    { "type": "wokwi-diode", "id": "d1", "top": 120, "left": 100, "attrs": {} },
+    { "type": "wokwi-diode", "id": "d2", "top": 160, "left": 100, "attrs": {} },
+    { "type": "wokwi-diode", "id": "d3", "top": 120, "left": 160, "attrs": {} },
+    { "type": "wokwi-diode", "id": "d4", "top": 160, "left": 160, "attrs": {} },
+    
+    { "type": "wokwi-capacitor", "id": "cap1", "top": 140, "left": 250, "attrs": { "value": "100uF" } },
+    { "type": "wokwi-resistor", "id": "r_pullup", "top": 80, "left": 250, "attrs": { "value": "10000" } },
+    
+    { "type": "wokwi-transistor-npn", "id": "q1", "top": 140, "left": 350, "attrs": {} },
+    { "type": "wokwi-resistor", "id": "r_base", "top": 80, "left": 330, "attrs": { "value": "1000" } },
+    
+    { "type": "wokwi-led", "id": "led1", "top": 130, "left": 450, "attrs": { "color": "blue" } },
+    { "type": "wokwi-resistor", "id": "r_led", "top": 180, "left": 440, "attrs": { "value": "1000" } }
+  ],
+  "connections": [
+    [ "bat1:V+", "sw1:1", "red", [ "v0" ] ],
+    [ "sw1:2", "uno:VIN", "red", [ "v0" ] ],
+    [ "bat1:V-", "uno:GND.1", "black", [ "v0" ] ],
+
+    [ "uno:5V", "bb1:tp.15", "red", [ "v0" ] ],
+    [ "uno:GND.2", "bb1:tn.15", "black", [ "v0" ] ],
+
+    [ "bb1:tp.15", "lcd:VCC", "red", [ "v0" ] ],
+    [ "bb1:tn.15", "lcd:GND", "black", [ "v0" ] ],
+    [ "uno:A4", "lcd:SDA", "blue", [ "v0" ] ],
+    [ "uno:A5", "lcd:SCL", "yellow", [ "v0" ] ],
+
+    [ "bb1:tp.15", "piezo_array:1.A", "red", [ "v0" ] ],
+    [ "piezo_array:2.A", "d1:A", "orange", [ "v0" ] ],
+    [ "piezo_array:2.A", "d3:A", "orange", [ "v0" ] ],
+
+    [ "d1:K", "d2:A", "green", [ "v0" ] ],
+    [ "d3:K", "d4:A", "green", [ "v0" ] ],
+    [ "d2:K", "cap1:1", "red", [ "v0" ] ],
+    [ "d4:K", "cap1:1", "red", [ "v0" ] ],
+
+    [ "cap1:1", "uno:A0", "green", [ "v0" ] ],
+    [ "cap1:1", "r_pullup:1", "green", [ "v0" ] ],
+    [ "r_pullup:2", "bb1:tn.15", "black", [ "v0" ] ],
+    [ "cap1:2", "bb1:tn.15", "black", [ "v0" ] ],
+
+    [ "uno:13", "r_base:1", "purple", [ "v0" ] ],
+    [ "r_base:2", "q1:B", "purple", [ "v0" ] ],
+    [ "q1:C", "bb1:tn.15", "black", [ "v0" ] ],
+    [ "q1:E", "led1:K", "black", [ "v0" ] ],
+    [ "led1:A", "r_led:1", "red", [ "v0" ] ],
+    [ "r_led:2", "bb1:tp.15", "red", [ "v0" ] ]
+  ]
+}
