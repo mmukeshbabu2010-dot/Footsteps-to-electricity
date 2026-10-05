@@ -1,0 +1,16 @@
+# Arduino IDE build outputs and binaries
+*.hex
+*.elf
+*.bin
+build/
+output/
+
+# Editor and IDE configurations
+.vscode/
+.idea/
+*.swp
+*.tmp
+.DS_Store
+
+# Wokwi offline or cache files
+.wokwi/
